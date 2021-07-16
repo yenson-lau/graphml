@@ -1,0 +1,6 @@
+# Ignore downloaded data
+*
+
+# Keep .gitignore and utils around
+!.gitignore
+!Datasets.jl
