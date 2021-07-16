@@ -1,7 +1,48 @@
 import Downloads, Tar, CodecZlib
 using CSV, DataFrames
+using LinearAlgebra, SparseArrays
 
 DATA_DIR = @__DIR__
+
+
+@Base.kwdef struct BipartiteGraphDataset
+  properties::Dict{Symbol, Any}
+
+  # Basics
+  U::Vector{Any}
+  V::Vector{Any}
+  E::Tuple{Vector{Int}, Vector{Int}}
+
+  # Features (optional)
+  Xᵤ::Union{AbstractMatrix, Nothing} = nothing
+  Xᵥ::Union{AbstractMatrix, Nothing} = nothing
+
+  # Maps between node identifiers to indices
+  ℐᵤ::Dict{Any, Int}
+  ℐᵥ::Dict{Any, Int}
+
+  # Adjacency matrices
+  Aᵤᵥ::AbstractMatrix
+  Aᵥᵤ::AbstractMatrix
+end
+
+function BipartiteGraphDataset(𝒟::BipartiteGraphDataset)
+  return BipartiteGraphDataset(𝒟.E; Xᵤ=𝒟.Xᵤ, Xᵥ=𝒟.Xᵥ)
+end
+
+function BipartiteGraphDataset(
+  E::Tuple{Vector{Int}, Vector{Int}};
+  Xᵤ::Union{AbstractMatrix, Nothing}=nothing,
+  Xᵥ::Union{AbstractMatrix, Nothing}=nothing
+)
+  return BipartiteGraphDataset(
+    U=U, V=V, E=E,
+    Xᵤ=Xᵤ, Xᵥ=Xᵥ,
+    ℐᵤ=Dict((u,i) for (i,u) in enumerate(U)),
+    ℐᵥ=Dict((v,i) for (i,v) in enumerate(V)),
+    Aᵤᵥ=Aᵤᵥ, Aᵥᵤ=Aᵥᵤ
+  )
+end
 
 function CoraDataset()::Dict{Symbol, Any}
   CORA_DIR = "$(DATA_DIR)/cora"
